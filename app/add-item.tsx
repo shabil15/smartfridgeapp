@@ -15,7 +15,7 @@ export default function AddItemScreen() {
   const [loading, setLoading] = useState(false);
 
   const categories = ['Dairy', 'Vegetables', 'Fruits', 'Meat', 'Grains', 'Beverages', 'Other'];
-  const units = ['pcs', 'kg', 'g', 'L', 'mL', 'dozen'];
+  const units = ['pcs', 'kg', 'g', 'L','dozen'];
 
   const handleAddItem = async () => {
     if (!name.trim()) {
@@ -74,8 +74,8 @@ export default function AddItemScreen() {
               colors={['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.05)']}
               className="p-6"
             >
-              <Text className="text-gray-900 text-3xl font-bold">➕ Add New Item</Text>
-              <Text className="text-gray-600 text-base mt-2">Add ingredients to your smart fridge</Text>
+              <Text className="text-gray-900 text-3xl font-bold">Add New Item</Text>
+              <Text className="text-gray-600 text-base mt-2">Add items to your smart fridge</Text>
             </LinearGradient>
           </BlurView>
 
@@ -103,7 +103,7 @@ export default function AddItemScreen() {
             </View>
 
             {/* Quantity & Unit */}
-            <View className="flex-row mb-5 gap-3">
+            <View className=" mb-5 gap-3">
               <View className="flex-1">
                 <Text className="text-gray-800 text-base font-semibold mb-2">Quantity *</Text>
                 <TextInput
@@ -122,7 +122,7 @@ export default function AddItemScreen() {
                     <TouchableOpacity
                       key={u}
                       onPress={() => setUnit(u)}
-                      className={`px-4 py-3 rounded-xl ${unit === u ? 'bg-blue-500' : 'bg-white/30'}`}
+                      className={`px-4 py-3 mx-1 rounded-xl ${unit === u ? 'bg-blue-500' : 'bg-white/30'}`}
                     >
                       <Text className={`font-semibold ${unit === u ? 'text-white' : 'text-gray-700'}`}>{u}</Text>
                     </TouchableOpacity>
@@ -134,12 +134,12 @@ export default function AddItemScreen() {
             {/* Category */}
             <View className="mb-5">
               <Text className="text-gray-800 text-base font-semibold mb-2">Category</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-row gap-2">
+              <ScrollView horizontal showsHorizontalScrollIndicator={true} className="flex-row gap-2">
                 {categories.map((cat) => (
                   <TouchableOpacity
                     key={cat}
                     onPress={() => setCategory(cat)}
-                    className={`px-5 py-3 rounded-xl ${category === cat ? 'bg-purple-500' : 'bg-white/30'}`}
+                    className={`px-5 py-3 mx-1 rounded-xl ${category === cat ? 'bg-purple-500' : 'bg-white/30'}`}
                   >
                     <Text className={`font-semibold ${category === cat ? 'text-white' : 'text-gray-700'}`}>{cat}</Text>
                   </TouchableOpacity>
@@ -161,44 +161,66 @@ export default function AddItemScreen() {
           </LinearGradient>
           </BlurView>
 
-          {/* Action Buttons */}
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={handleAddItem}
-            disabled={loading}
-          >
-            <BlurView
-              intensity={20}
-              tint="light"
-              className="rounded-2xl overflow-hidden border border-white/30 mb-4"
-              style={{ backgroundColor: 'rgba(99, 102, 241, 0.3)', opacity: loading ? 0.5 : 1 }}
+          {/* Action Buttons - Square Grid */}
+          <View className="flex-row gap-4 mb-8">
+            <TouchableOpacity 
+              className="flex-1"
+              activeOpacity={0.7}
+              onPress={handleAddItem}
+              disabled={loading}
             >
-              <LinearGradient
-                colors={['rgba(99, 102, 241, 0.3)', 'rgba(168, 85, 247, 0.3)']}
-                className="p-5"
+              <BlurView
+                intensity={20}
+                tint="light"
+                className="rounded-3xl overflow-hidden border border-white/30"
+                style={{ 
+                  backgroundColor: 'rgba(99, 102, 241, 0.3)',
+                  height: 180,
+                  opacity: loading ? 0.5 : 1
+                }}
               >
-                <Text className="text-gray-900 text-center text-lg font-bold">
-                  {loading ? 'Adding...' : '✓ Add to Fridge'}
-                </Text>
-              </LinearGradient>
-            </BlurView>
-          </TouchableOpacity>
+                <LinearGradient
+                  colors={['rgba(99, 102, 241, 0.3)', 'rgba(168, 85, 247, 0.3)']}
+                  className="p-8 items-center justify-center h-full"
+                >
+                  <View className="mb-3 items-center">
+                    <Text className="text-6xl mb-2">✓</Text>
+                  </View>
+                  <Text className="text-gray-900 text-center text-lg font-bold">
+                    {loading ? 'Adding...' : 'Add to Fridge'}
+                  </Text>
+                  <Text className="text-gray-600 text-center text-xs mt-1">Save this item</Text>
+                </LinearGradient>
+              </BlurView>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={() => router.back()}
-          >
-            <BlurView
-              intensity={15}
-              tint="light"
-              className="rounded-2xl overflow-hidden border border-white/30 mb-8"
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+            <TouchableOpacity 
+              className="flex-1"
+              activeOpacity={0.7}
+              onPress={() => router.back()}
             >
-              <View className="p-5">
-                <Text className="text-gray-900 text-center text-lg font-bold">Cancel</Text>
-              </View>
-            </BlurView>
-          </TouchableOpacity>
+              <BlurView
+                intensity={20}
+                tint="light"
+                className="rounded-3xl overflow-hidden border border-white/30"
+                style={{ 
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  height: 180,
+                }}
+              >
+                <LinearGradient
+                  colors={['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.05)']}
+                  className="p-8 items-center justify-center h-full"
+                >
+                  <View className="mb-3 items-center">
+                    <Text className="text-6xl mb-2">✕</Text>
+                  </View>
+                  <Text className="text-gray-900 text-center text-lg font-bold">Cancel</Text>
+                  <Text className="text-gray-600 text-center text-xs mt-1">Go back</Text>
+                </LinearGradient>
+              </BlurView>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </ImageBackground>
