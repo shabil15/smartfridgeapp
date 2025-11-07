@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, ImageBackground, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function InventoryScreen() {
   const [items, setItems] = useState<FridgeItem[]>([]);
@@ -66,9 +67,9 @@ export default function InventoryScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+      <SafeAreaView className="flex-1 justify-center items-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <ActivityIndicator size="large" color="#8B5CF6" />
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -82,9 +83,10 @@ export default function InventoryScreen() {
         colors={['rgba(219, 234, 254, 0.8)', 'rgba(243, 232, 255, 0.8)', 'rgba(254, 242, 242, 0.8)']}
         className="flex-1"
       >
-        <View className="flex-1">
-          {/* Header */}
-          <View className="mt-16 mx-5 mb-6 bg-white/25 backdrop-blur-xl rounded-3xl p-6 border border-white/40">
+        <SafeAreaView className="flex-1">
+          <View className="flex-1">
+            {/* Header */}
+            <View className="mt-4 mx-5 mb-6 bg-white/25 backdrop-blur-xl rounded-3xl p-6 border border-white/40">
             <Text className="text-gray-900 text-3xl font-bold">📦 Fridge Inventory</Text>
             <Text className="text-gray-600 text-base mt-2">{items.length} items stored</Text>
           </View>
@@ -113,6 +115,7 @@ export default function InventoryScreen() {
             />
           )}
         </View>
+        </SafeAreaView>
       </LinearGradient>
     </ImageBackground>
   );

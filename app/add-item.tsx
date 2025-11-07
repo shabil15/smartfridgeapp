@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ImageBackground, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AddItemScreen() {
   const [name, setName] = useState('');
@@ -63,10 +64,11 @@ export default function AddItemScreen() {
         colors={['rgba(219, 234, 254, 0.85)', 'rgba(243, 232, 255, 0.85)']}
         className="flex-1"
       >
-        <ScrollView className="flex-1 px-5">
-          {/* Header */}
-          <View className="mt-16 mb-6 bg-white/25 backdrop-blur-xl rounded-3xl p-6 border border-white/40">
-            <Text className="text-gray-900 text-3xl font-bold">➕ Add New Item</Text>
+        <SafeAreaView className="flex-1">
+          <ScrollView className="flex-1 px-5">
+            {/* Header */}
+            <View className="mt-4 mb-6 bg-white/25 backdrop-blur-xl rounded-3xl p-6 border border-white/40">
+              <Text className="text-gray-900 text-3xl font-bold">➕ Add New Item</Text>
             <Text className="text-gray-600 text-base mt-2">Add ingredients to your smart fridge</Text>
           </View>
 
@@ -160,6 +162,7 @@ export default function AddItemScreen() {
             <Text className="text-gray-900 text-center text-lg font-bold">Cancel</Text>
           </TouchableOpacity>
         </ScrollView>
+        </SafeAreaView>
       </LinearGradient>
     </ImageBackground>
   );

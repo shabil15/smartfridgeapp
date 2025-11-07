@@ -4,6 +4,7 @@ import { FridgeItem, supabase } from '@/lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RecipesScreen() {
   const [loading, setLoading] = useState(false);
@@ -61,17 +62,18 @@ export default function RecipesScreen() {
         colors={['rgba(236, 233, 254, 0.85)', 'rgba(249, 232, 255, 0.85)', 'rgba(254, 242, 242, 0.85)']}
         className="flex-1"
       >
-        <ScrollView className="flex-1 px-5">
-          {/* Header */}
-          <View className="mt-16 mb-6 bg-purple-500/80 backdrop-blur-xl rounded-3xl p-6 border border-white/40">
-            <Text className="text-white text-3xl font-bold mb-2">🤖 AI Recipe Generator</Text>
-            <Text className="text-purple-100 text-sm">
-              Get personalized recipe suggestions based on your fridge items
-            </Text>
-          </View>
+        <SafeAreaView className="flex-1">
+          <ScrollView className="flex-1 px-5">
+            {/* Header */}
+            <View className="mt-4 mb-6 bg-purple-500/80 backdrop-blur-xl rounded-3xl p-6 border border-white/40">
+              <Text className="text-white text-3xl font-bold mb-2">🤖 AI Recipe Generator</Text>
+              <Text className="text-purple-100 text-sm">
+                Get personalized recipe suggestions based on your fridge items
+              </Text>
+            </View>
 
-          {/* Ingredients Card */}
-          <View className="bg-white/25 backdrop-blur-xl rounded-3xl p-5 border border-white/40 mb-5">
+            {/* Ingredients Card */}
+            <View className="bg-white/25 backdrop-blur-xl rounded-3xl p-5 border border-white/40 mb-5">
             <Text className="text-gray-900 text-lg font-bold mb-3">Your Ingredients:</Text>
             {items.length > 0 ? (
               <View className="flex-row flex-wrap gap-2">
@@ -121,6 +123,7 @@ export default function RecipesScreen() {
             </View>
           )}
         </ScrollView>
+        </SafeAreaView>
       </LinearGradient>
     </ImageBackground>
   );
