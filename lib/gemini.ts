@@ -11,13 +11,28 @@ export const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 export const generateRecipe = async (items: string[]) => {
   const prompt = `
   I have these ingredients in my fridge: ${items.join(", ")}.
-  Suggest 3 simple recipes using most of these ingredients.
-  For each recipe, include:
-  - Recipe name
-  - Required ingredients (mark missing ones if any)
-  - Step-by-step instructions
-  Keep it short and easy for a home cook.
-  Format the response in a clear, structured way.
+  
+  Generate exactly 3 simple recipes using most of these ingredients.
+  
+  IMPORTANT: Return ONLY a valid JSON array with no additional text, markdown formatting, or code blocks.
+  
+  Format:
+  [
+    {
+      "name": "Recipe Name",
+      "ingredients": ["200g ingredient 1", "2 tablespoons ingredient 2", "3 cups ingredient 3"],
+      "steps": ["Step 1", "Step 2", "Step 3"]
+    }
+  ]
+  
+  Requirements:
+  - Each recipe must have a name (string)
+  - Each recipe must have ingredients (array of strings) - IMPORTANT: Each ingredient MUST include the quantity/measurement (e.g., "2 eggs", "200g chicken", "1 cup milk", "3 tomatoes")
+  - Each recipe must have steps (array of strings with clear numbered instructions)
+  - Keep recipes simple and easy for a home cook
+  - Use realistic cooking steps and measurements
+  - Include specific quantities for ALL ingredients in the ingredients list
+  - Return ONLY the JSON array, no other text
   `;
 
   try {
@@ -29,13 +44,13 @@ export const generateRecipe = async (items: string[]) => {
     
     // Provide more specific error messages
     if (error.message?.includes('API key')) {
-      return "❌ Invalid API Key. Please check your Gemini API key in the .env file.";
+      throw new Error("Invalid API Key. Please check your Gemini API key in the .env file.");
     } else if (error.message?.includes('404')) {
-      return "❌ Model not found. The Gemini API may have changed. Please check for updates.";
+      throw new Error("Model not found. The Gemini API may have changed. Please check for updates.");
     } else if (error.message?.includes('quota')) {
-      return "❌ API quota exceeded. Please check your Gemini API usage limits.";
+      throw new Error("API quota exceeded. Please check your Gemini API usage limits.");
     }
     
-    return "Sorry, I couldn't generate recipes at the moment. Please try again later or check your internet connection.";
+    throw new Error("Couldn't generate recipes at the moment. Please try again later or check your internet connection.");
   }
 };

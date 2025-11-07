@@ -1,20 +1,55 @@
-import RecipeCard from '@/components/RecipeCard';
+import RecipeCard, { Recipe } from '@/components/RecipeCard';
 import { generateRecipe } from '@/lib/gemini';
 import { FridgeItem, supabase } from '@/lib/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const RECIPES_STORAGE_KEY = '@saved_recipes';
+
 export default function RecipesScreen() {
   const [loading, setLoading] = useState(false);
-  const [recipes, setRecipes] = useState('');
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<FridgeItem[]>([]);
 
   useEffect(() => {
     loadItems();
+    loadSavedRecipes();
   }, []);
+
+  const loadSavedRecipes = async () => {
+    try {
+      const savedRecipes = await AsyncStorage.getItem(RECIPES_STORAGE_KEY);
+      if (savedRecipes !== null) {
+        const parsedRecipes = JSON.parse(savedRecipes);
+        setRecipes(parsedRecipes);
+      }
+    } catch (error) {
+      console.error('Error loading saved recipes:', error);
+    }
+  };
+
+  const saveRecipes = async (recipesToSave: Recipe[]) => {
+    try {
+      await AsyncStorage.setItem(RECIPES_STORAGE_KEY, JSON.stringify(recipesToSave));
+    } catch (error) {
+      console.error('Error saving recipes:', error);
+    }
+  };
+
+  const clearRecipes = async () => {
+    try {
+      await AsyncStorage.removeItem(RECIPES_STORAGE_KEY);
+      setRecipes([]);
+      setError(null);
+    } catch (error) {
+      console.error('Error clearing recipes:', error);
+    }
+  };
 
   const loadItems = async () => {
     try {
@@ -39,15 +74,62 @@ export default function RecipesScreen() {
     }
 
     setLoading(true);
-    setRecipes('');
+    setRecipes([]);
+    setError(null);
 
     try {
-      const itemNames = items.map((item) => item.name);
-      const generatedRecipes = await generateRecipe(itemNames);
-      setRecipes(generatedRecipes);
-    } catch (error) {
+      // Include quantity and unit with each item name
+      const itemsWithQuantities = items.map((item) => 
+        `${item.quantity}${item.unit} ${item.name}`
+      );
+      const generatedRecipes = await generateRecipe(itemsWithQuantities);
+      
+      // Clean the response - remove markdown code blocks if present
+      let cleanedResponse = generatedRecipes.trim();
+      
+      // Remove ```json and ``` if present
+      if (cleanedResponse.startsWith('```')) {
+        cleanedResponse = cleanedResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      }
+      
+      // Parse JSON safely
+      try {
+        const parsedRecipes = JSON.parse(cleanedResponse);
+        
+        // Validate that it's an array
+        if (!Array.isArray(parsedRecipes)) {
+          throw new Error('Response is not an array');
+        }
+        
+        // Validate each recipe has required fields
+        const validRecipes = parsedRecipes.filter((recipe: any) => {
+          return (
+            recipe &&
+            typeof recipe.name === 'string' &&
+            Array.isArray(recipe.ingredients) &&
+            Array.isArray(recipe.steps)
+          );
+        });
+        
+        if (validRecipes.length === 0) {
+          throw new Error('No valid recipes found in response');
+        }
+        
+        setRecipes(validRecipes);
+        await saveRecipes(validRecipes);
+      } catch (parseError) {
+        console.error('JSON Parse Error:', parseError);
+        console.error('Raw response:', generatedRecipes);
+        setError('Failed to parse recipes. The AI response was not in the expected format.');
+        Alert.alert(
+          'Parse Error',
+          'The AI returned an invalid format. Please try again.'
+        );
+      }
+    } catch (error: any) {
       console.error('Error generating recipes:', error);
-      Alert.alert('Error', 'Failed to generate recipes. Please try again.');
+      setError(error.message || 'Failed to generate recipes');
+      Alert.alert('Error', error.message || 'Failed to generate recipes. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -68,15 +150,15 @@ export default function RecipesScreen() {
             className="mt-4 mb-6 rounded-3xl overflow-hidden border border-white/30"
             style={{ backgroundColor: 'rgba(168, 85, 247, 0.2)' }}
           >
-            <LinearGradient
-              colors={['rgba(168, 85, 247, 0.3)', 'rgba(147, 51, 234, 0.2)']}
+            <BlurView
+              style={{ backgroundColor: 'rgba(99, 102, 241, 0.3)' }}
               className="p-6"
             >
-              <Text className="text-gray-900 text-3xl font-bold mb-2">🤖 AI Recipe Generator</Text>
+              <Text className="text-gray-900 text-3xl font-bold mb-2"> AI Recipe Generator</Text>
               <Text className="text-gray-700 text-sm">
                 Get personalized recipe suggestions based on your fridge items
               </Text>
-            </LinearGradient>
+            </BlurView>
           </BlurView>
 
           {/* Ingredients Card */}
@@ -120,12 +202,12 @@ export default function RecipesScreen() {
               tint="light"
               className="rounded-2xl overflow-hidden border border-white/30 mb-5"
               style={{ 
-                backgroundColor: 'rgba(168, 85, 247, 0.3)',
+                // backgroundColor: 'rgba(168, 85, 247, 0.3)',
                 opacity: loading || items.length === 0 ? 0.5 : 1
               }}
             >
-              <LinearGradient
-                colors={['rgba(168, 85, 247, 0.3)', 'rgba(236, 72, 153, 0.3)']}
+              <BlurView
+                style={{ backgroundColor: 'rgba(99, 102, 241, 0.3)' }}
                 className="p-5 items-center"
               >
                 {loading ? (
@@ -133,20 +215,79 @@ export default function RecipesScreen() {
                 ) : (
                   <Text className="text-gray-900 text-lg font-bold">✨ Generate Recipes</Text>
                 )}
-              </LinearGradient>
+              </BlurView>
             </BlurView>
           </TouchableOpacity>
 
           {/* Recipes Display */}
-          {recipes && (
+          {recipes.length > 0 && (
             <View className="mb-5">
-              <Text className="text-gray-900 text-xl font-bold mb-4">🍳 Suggested Recipes:</Text>
-              <RecipeCard recipe={recipes} />
+              <View className="flex-row justify-between items-center mb-4">
+                <Text className="text-gray-900 text-xl font-bold">🍳 Suggested Recipes:</Text>
+                <TouchableOpacity
+                  onPress={clearRecipes}
+                  activeOpacity={0.7}
+                >
+                  <BlurView
+                    intensity={15}
+                    tint="light"
+                    className="rounded-full overflow-hidden border border-white/30"
+                    style={{ backgroundColor: 'rgba(239, 68, 68, 0.3)' }}
+                  >
+                    <View className="px-4 py-2">
+                      <Text className="text-red-800 text-xs font-bold">🗑️ Clear</Text>
+                    </View>
+                  </BlurView>
+                </TouchableOpacity>
+              </View>
+              {recipes.map((recipe, index) => (
+                <RecipeCard key={index} recipe={recipe} index={index} />
+              ))}
+            </View>
+          )}
+
+          {/* Error Display */}
+          {error && !loading && (
+            <BlurView
+              intensity={15}
+              tint="light"
+              className="rounded-2xl overflow-hidden border border-red-300 mb-5"
+              style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
+            >
+              <View className="p-5">
+                <Text className="text-red-800 text-sm font-semibold mb-2">⚠️ Error</Text>
+                <Text className="text-red-700 text-sm leading-6">{error}</Text>
+              </View>
+            </BlurView>
+          )}
+
+          {/* Loading Skeleton */}
+          {loading && (
+            <View className="mb-5">
+              <Text className="text-gray-900 text-xl font-bold mb-4">🍳 Generating Recipes...</Text>
+              {[1, 2, 3].map((_, index) => (
+                <BlurView
+                  key={index}
+                  intensity={15}
+                  tint="light"
+                  className="rounded-3xl overflow-hidden border border-white/20 mb-4"
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                >
+                  <View className="p-5">
+                    <View className="flex-row items-center mb-4">
+                      <View className="bg-gray-300/50 rounded-full w-8 h-8 mr-3" />
+                      <View className="bg-gray-300/50 rounded-2xl h-6 flex-1" />
+                    </View>
+                    <View className="bg-gray-300/50 rounded-2xl h-20 mb-3" />
+                    <View className="bg-gray-300/50 rounded-2xl h-12" />
+                  </View>
+                </BlurView>
+              ))}
             </View>
           )}
 
           {/* Info Card */}
-          {!recipes && !loading && (
+          {recipes.length === 0 && !loading && !error && (
             <BlurView
               intensity={15}
               tint="light"
