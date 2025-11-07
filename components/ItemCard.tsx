@@ -46,7 +46,7 @@ export default function ItemCard({ item, onEdit, onRemove }: ItemCardProps) {
           </View>
 
           {/* Quantity - Always visible */}
-          <View className="bg-white/40 rounded-full px-4 py-2 mr-1">
+          <View className="bg-white/40 rounded-full p-4 mr-1">
             <Text className="text-gray-800 text-sm font-medium">
               {item.quantity}{item.unit}
             </Text>
