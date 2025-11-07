@@ -1,14 +1,16 @@
 import { FridgeItem, supabase } from '@/lib/supabase';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, ImageBackground, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
   const [items, setItems] = useState<FridgeItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ total: 0, expiringSoon: 0 });
+  const [_, setStats] = useState({ total: 0, expiringSoon: 0 });
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const calculateStats = useCallback((items: FridgeItem[]) => {
     const today = new Date();
@@ -47,14 +49,38 @@ export default function DashboardScreen() {
 
   useEffect(() => {
     loadItems();
+    
+    // Update time every minute
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+
+    return () => clearInterval(timer);
   }, [loadItems]);
+
+  // Format date and time
+  const formatDate = () => {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${days[currentTime.getDay()]}, ${currentTime.getDate()} ${months[currentTime.getMonth()]}`;
+  };
+
+  const formatTime = () => {
+    let hours = currentTime.getHours();
+    const minutes = currentTime.getMinutes();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // 0 should be 12
+    const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+    return `${hours}:${minutesStr}${ampm}`;
+  };
 
   if (loading) {
     return (
       <ImageBackground
         source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
         className="flex-1"
-        blurRadius={10}
+        blurRadius={5}
       >
         <LinearGradient
           colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
@@ -81,125 +107,163 @@ export default function DashboardScreen() {
         <SafeAreaView className="flex-1">
           <ScrollView className="flex-1 px-5">
             {/* Header with glassmorphism */}
-            <View 
-              className="mt-4 mb-5 rounded-3xl p-6"
-              style={{
-                backgroundColor: Platform.OS === 'web' ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.35)',
-                borderWidth: 1,
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-              }}
+            <BlurView
+              intensity={20}
+              tint="light"
+              className="mt-4 mb-5 rounded-3xl overflow-hidden border border-white/30"
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
             >
-              <View className="flex-row items-center">
-                <View 
-                  className="w-12 h-12 rounded-full items-center justify-center mr-3"
-                  style={{
-                    backgroundColor: '#6366F1',
-                  }}
-                >
-                  <Text className="text-2xl">👋</Text>
+              <LinearGradient
+                colors={['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.05)']}
+                className="p-6"
+              >
+                <View className="flex-row items-center">
+                  <BlurView
+                    intensity={15}
+                    tint="light"
+                    className="w-12 h-12 rounded-full items-center justify-center mr-3 overflow-hidden border border-white/20"
+                    style={{ backgroundColor: 'rgba(99, 102, 241, 0.3)' }}
+                  >
+                    <Text className="text-2xl">👋</Text>
+                  </BlurView>
+                  <View>
+                    <Text className="text-gray-600 text-sm">Good morning,</Text>
+                    <Text className="text-gray-900 text-2xl font-bold">Michelle</Text>
+                  </View>
                 </View>
-                <View>
-                  <Text className="text-gray-600 text-sm">Good morning,</Text>
-                  <Text className="text-gray-900 text-2xl font-bold">Michelle</Text>
-                </View>
-              </View>
-            </View>
+              </LinearGradient>
+            </BlurView>
 
             {/* Weather/Date Card */}
             <View className="flex-row mb-5 gap-3">
-              <View 
-                className="flex-1 rounded-2xl p-4"
-                style={{
-                  backgroundColor: Platform.OS === 'web' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.4)',
-                  borderWidth: 1,
-                  borderColor: 'rgba(255, 255, 255, 0.6)',
-                }}
+              <BlurView
+                intensity={15}
+                tint="light"
+                className="flex-1 rounded-2xl overflow-hidden border border-white/20"
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
               >
-                <Text className="text-gray-600 text-xs mb-1">Thursday, 17 Sep</Text>
-                <Text className="text-gray-900 text-xl font-bold">11:24am</Text>
-              </View>
-              <View 
-                className="flex-1 rounded-2xl p-4"
-                style={{
-                  backgroundColor: Platform.OS === 'web' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0.4)',
-                  borderWidth: 1,
-                  borderColor: 'rgba(255, 255, 255, 0.6)',
-                }}
-              >
-                <Text className="text-gray-600 text-xs mb-1">Mostly sunny</Text>
-                <View className="flex-row items-center">
-                  <Text className="text-gray-900 text-xl font-bold">18°C</Text>
-                  <Text className="text-3xl ml-2">☀️</Text>
+                <View className="p-4">
+                  <Text className="text-gray-600 text-xs mb-1">{formatDate()}</Text>
+                  <Text className="text-gray-900 text-xl font-bold">{formatTime()}</Text>
                 </View>
-              </View>
+              </BlurView>
+              
+              <BlurView
+                intensity={15}
+                tint="light"
+                className="flex-1 rounded-2xl overflow-hidden border border-white/20"
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+              >
+                <View className="p-4">
+                  <Text className="text-gray-600 text-xs mb-1">Mostly sunny</Text>
+                  <View className="flex-row items-center">
+                    <Text className="text-gray-900 text-xl font-bold">18°C</Text>
+                    <Text className="text-3xl ml-2">☀️</Text>
+                  </View>
+                </View>
+              </BlurView>
             </View>
 
             {/* What I have in section */}
-            <View 
-              className="rounded-3xl p-5 mb-6"
-              style={{
-                backgroundColor: Platform.OS === 'web' ? 'rgba(255, 255, 255, 0.45)' : 'rgba(255, 255, 255, 0.35)',
-                borderWidth: 1,
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-              }}
+            <BlurView
+              intensity={20}
+              tint="light"
+              className="rounded-3xl overflow-hidden border border-white/30 mb-6"
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
             >
-              <Text className="text-gray-900 text-xl font-bold mb-4">What I have in Fridge</Text>
-
-              {/* Items List */}
-              {items.slice(0, 5).map((item) => (
-                <View 
-                  key={item.id} 
-                  className="rounded-2xl p-3 mb-3 flex-row items-center"
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                  }}
-                >
-                  <View 
-                    className="w-12 h-12 rounded-full mr-3"
-                    style={{
-                      backgroundColor: '#FB7185',
-                    }}
-                  />
-                  <View className="flex-1">
-                    <Text className="text-gray-900 font-semibold text-base">{item.name}</Text>
-                  </View>
-                  <Text className="text-gray-700 font-medium">{item.quantity}{item.unit}</Text>
+              <LinearGradient
+                colors={['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.05)']}
+                className="p-5"
+              >
+                <View className="flex-row justify-between items-center mb-4">
+                  <Text className="text-gray-900 text-xl font-bold">What I have in Fridge</Text>
+                  <TouchableOpacity onPress={() => router.push('/inventory')}>
+                    <Text className="text-blue-600 text-sm font-semibold">View all →</Text>
+                  </TouchableOpacity>
                 </View>
-              ))}
-            </View>
 
-            {/* Action Buttons */}
-            <View className="mb-8">
+                {/* Items List */}
+                {items.slice(0, 5).map((item) => (
+                  <BlurView
+                    key={item.id}
+                    intensity={10}
+                    tint="light"
+                    className="rounded-2xl overflow-hidden border border-white/20 mb-3"
+                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                  >
+                    <View className="p-3 flex-row items-center">
+                      <BlurView
+                        intensity={15}
+                        tint="light"
+                        className="w-12 h-12 rounded-full mr-3 overflow-hidden border border-white/20"
+                        style={{ backgroundColor: 'rgba(251, 113, 133, 0.3)' }}
+                      >
+                        <View className="w-full h-full items-center justify-center" />
+                      </BlurView>
+                      <View className="flex-1">
+                        <Text className="text-gray-900 font-semibold text-base">{item.name}</Text>
+                      </View>
+                      <Text className="text-gray-700 font-medium">{item.quantity}{item.unit}</Text>
+                    </View>
+                  </BlurView>
+                ))}
+              </LinearGradient>
+            </BlurView>
+
+            {/* Action Buttons - Square Grid */}
+            <View className="flex-row gap-4 mb-8">
               <TouchableOpacity 
-                className="rounded-2xl p-4 mb-3"
-                style={{
-                  backgroundColor: '#6366F1',
-                }}
+                className="flex-1"
+                activeOpacity={0.7}
                 onPress={() => router.push('/add-item')}
               >
-                <Text className="text-white text-center text-lg font-bold">➕ Add Item</Text>
+                <BlurView
+                  intensity={20}
+                  tint="light"
+                  className="rounded-3xl overflow-hidden border border-white/30"
+                  style={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    minHeight: 160,
+                  }}
+                >
+                  <LinearGradient
+                    colors={['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.05)']}
+                    className="p-8 items-center justify-center h-full"
+                  >
+                    <View className="mb-3 items-center">
+                      <Text className="text-6xl mb-2">➕</Text>
+                    </View>
+                    <Text className="text-gray-900 text-center text-lg font-bold">Add Item</Text>
+                    <Text className="text-gray-600 text-center text-xs mt-1">Add new items to fridge</Text>
+                  </LinearGradient>
+                </BlurView>
               </TouchableOpacity>
 
               <TouchableOpacity 
-                className="rounded-2xl p-4 mb-3"
-                style={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                  borderWidth: 1,
-                  borderColor: 'rgba(255, 255, 255, 0.6)',
-                }}
-                onPress={() => router.push('/inventory')}
-              >
-                <Text className="text-gray-900 text-center text-lg font-bold">📦 View Inventory ({stats.total})</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                className="rounded-2xl p-4"
-                style={{
-                  backgroundColor: '#A855F7',
-                }}
+                className="flex-1"
+                activeOpacity={0.7}
                 onPress={() => router.push('/recipes')}
               >
-                <Text className="text-white text-center text-lg font-bold">🤖 Generate Recipes</Text>
+                <BlurView
+                  intensity={20}
+                  tint="light"
+                  className="rounded-3xl overflow-hidden border border-white/30"
+                  style={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    minHeight: 160,
+                  }}
+                >
+                  <LinearGradient
+                    colors={['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.05)']}
+                    className="p-8 items-center justify-center h-full"
+                  >
+                    <View className="mb-3 items-center">
+                      <Text className="text-6xl mb-2">🤖</Text>
+                    </View>
+                    <Text className="text-gray-900 text-center text-lg font-bold">Recipes</Text>
+                    <Text className="text-gray-600 text-center text-xs mt-1">AI-powered suggestions</Text>
+                  </LinearGradient>
+                </BlurView>
               </TouchableOpacity>
             </View>
           </ScrollView>

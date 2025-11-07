@@ -1,5 +1,6 @@
 import ItemCard from '@/components/ItemCard';
 import { FridgeItem, supabase } from '@/lib/supabase';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -68,52 +69,72 @@ export default function InventoryScreen() {
   if (loading) {
     return (
       <ImageBackground
-        source={{ uri: 'https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=1200&q=80' }}
+        source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
         className="flex-1"
-        blurRadius={80}
+        blurRadius={10}
       >
-        <LinearGradient
-          colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
-          className="flex-1"
-        >
-          <SafeAreaView className="flex-1 justify-center items-center">
-            <ActivityIndicator size="large" color="#FFFFFF" />
-          </SafeAreaView>
-        </LinearGradient>
+        <SafeAreaView className="flex-1 justify-center items-center">
+          <ActivityIndicator size="large" color="#FFFFFF" />
+        </SafeAreaView>
       </ImageBackground>
     );
   }
 
   return (
     <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=1200&q=80' }}
+      source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
       className="flex-1"
-      blurRadius={20}
+      blurRadius={10}
     >
-      <LinearGradient
-        colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
-        className="flex-1"
-      >
-        <SafeAreaView className="flex-1">
-          <View className="flex-1">
-            {/* Header */}
-            <View className="mt-4 mx-5 mb-6 bg-white/25 backdrop-blur-xl rounded-3xl p-6 border border-white/40">
-            <Text className="text-gray-900 text-3xl font-bold">📦 Fridge Inventory</Text>
-            <Text className="text-gray-600 text-base mt-2">{items.length} items stored</Text>
-          </View>
+      <SafeAreaView className="flex-1">
+        <View className="flex-1">
+          {/* Header */}
+          <BlurView
+            intensity={20}
+            tint="light"
+            className="mt-4 mx-5 mb-6 rounded-3xl overflow-hidden border border-white/30"
+            style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+          >
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.05)']}
+              className="p-6"
+            >
+              <Text className="text-gray-900 text-3xl font-bold">📦 Fridge Inventory</Text>
+              <Text className="text-gray-600 text-base mt-2">{items.length} items stored</Text>
+            </LinearGradient>
+          </BlurView>
 
           {items.length === 0 ? (
             <View className="flex-1 justify-center items-center px-10">
-              <View className="bg-white/25 backdrop-blur-xl rounded-3xl p-8 border border-white/40 items-center">
-                <Text className="text-6xl mb-4">🍽️</Text>
-                <Text className="text-gray-700 text-lg font-semibold mb-6 text-center">No items in your fridge</Text>
-                <TouchableOpacity
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl px-8 py-4"
-                  onPress={() => router.push('/add-item')}
+              <BlurView
+                intensity={20}
+                tint="light"
+                className="rounded-3xl overflow-hidden border border-white/30"
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+              >
+                <LinearGradient
+                  colors={['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.05)']}
+                  className="p-8 items-center"
                 >
-                  <Text className="text-white text-base font-bold">➕ Add Your First Item</Text>
-                </TouchableOpacity>
-              </View>
+                  <Text className="text-6xl mb-4">🍽️</Text>
+                  <Text className="text-gray-700 text-lg font-semibold mb-6 text-center">No items in your fridge</Text>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    onPress={() => router.push('/add-item')}
+                  >
+                    <BlurView
+                      intensity={15}
+                      tint="light"
+                      className="rounded-2xl overflow-hidden border border-white/30"
+                      style={{ backgroundColor: 'rgba(99, 102, 241, 0.3)' }}
+                    >
+                      <View className="px-8 py-4">
+                        <Text className="text-gray-900 text-base font-bold">➕ Add Your First Item</Text>
+                      </View>
+                    </BlurView>
+                  </TouchableOpacity>
+                </LinearGradient>
+              </BlurView>
             </View>
           ) : (
             <FlatList
@@ -126,8 +147,7 @@ export default function InventoryScreen() {
             />
           )}
         </View>
-        </SafeAreaView>
-      </LinearGradient>
+      </SafeAreaView>
     </ImageBackground>
   );
 }

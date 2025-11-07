@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
@@ -56,24 +57,39 @@ export default function AddItemScreen() {
 
   return (
     <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=1200&q=80' }}
+      source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
       className="flex-1"
-      blurRadius={80}
+      blurRadius={10}
     >
-      <LinearGradient
-        colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
-        className="flex-1"
-      >
-        <SafeAreaView className="flex-1">
-          <ScrollView className="flex-1 px-5">
-            {/* Header */}
-            <View className="mt-4 mb-6 bg-white/25 backdrop-blur-xl rounded-3xl p-6 border border-white/40">
+      <SafeAreaView className="flex-1">
+        <ScrollView className="flex-1 px-5">
+          {/* Header */}
+          <BlurView
+            intensity={20}
+            tint="light"
+            className="mt-4 mb-6 rounded-3xl overflow-hidden border border-white/30"
+            style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+          >
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.05)']}
+              className="p-6"
+            >
               <Text className="text-gray-900 text-3xl font-bold">➕ Add New Item</Text>
-            <Text className="text-gray-600 text-base mt-2">Add ingredients to your smart fridge</Text>
-          </View>
+              <Text className="text-gray-600 text-base mt-2">Add ingredients to your smart fridge</Text>
+            </LinearGradient>
+          </BlurView>
 
           {/* Form Container */}
-          <View className="bg-white/20 backdrop-blur-xl rounded-3xl p-5 border border-white/30 mb-6">
+          <BlurView
+            intensity={20}
+            tint="light"
+            className="rounded-3xl overflow-hidden border border-white/30 mb-6"
+            style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+          >
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.05)']}
+              className="p-5"
+            >
             {/* Item Name */}
             <View className="mb-5">
               <Text className="text-gray-800 text-base font-semibold mb-2">Item Name *</Text>
@@ -142,28 +158,49 @@ export default function AddItemScreen() {
                 placeholderTextColor="#9CA3AF"
               />
             </View>
-          </View>
+          </LinearGradient>
+          </BlurView>
 
           {/* Action Buttons */}
           <TouchableOpacity
+            activeOpacity={0.7}
             onPress={handleAddItem}
             disabled={loading}
-            className={`bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-5 mb-4 ${loading ? 'opacity-50' : ''}`}
           >
-            <Text className="text-white text-center text-lg font-bold">
-              {loading ? 'Adding...' : '✓ Add to Fridge'}
-            </Text>
+            <BlurView
+              intensity={20}
+              tint="light"
+              className="rounded-2xl overflow-hidden border border-white/30 mb-4"
+              style={{ backgroundColor: 'rgba(99, 102, 241, 0.3)', opacity: loading ? 0.5 : 1 }}
+            >
+              <LinearGradient
+                colors={['rgba(99, 102, 241, 0.3)', 'rgba(168, 85, 247, 0.3)']}
+                className="p-5"
+              >
+                <Text className="text-gray-900 text-center text-lg font-bold">
+                  {loading ? 'Adding...' : '✓ Add to Fridge'}
+                </Text>
+              </LinearGradient>
+            </BlurView>
           </TouchableOpacity>
 
           <TouchableOpacity
+            activeOpacity={0.7}
             onPress={() => router.back()}
-            className="bg-white/25 backdrop-blur-xl border border-white/40 rounded-2xl p-5 mb-8"
           >
-            <Text className="text-gray-900 text-center text-lg font-bold">Cancel</Text>
+            <BlurView
+              intensity={15}
+              tint="light"
+              className="rounded-2xl overflow-hidden border border-white/30 mb-8"
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+            >
+              <View className="p-5">
+                <Text className="text-gray-900 text-center text-lg font-bold">Cancel</Text>
+              </View>
+            </BlurView>
           </TouchableOpacity>
         </ScrollView>
-        </SafeAreaView>
-      </LinearGradient>
+      </SafeAreaView>
     </ImageBackground>
   );
 }

@@ -1,6 +1,7 @@
 import RecipeCard from '@/components/RecipeCard';
 import { generateRecipe } from '@/lib/gemini';
 import { FridgeItem, supabase } from '@/lib/supabase';
+import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -54,26 +55,41 @@ export default function RecipesScreen() {
 
   return (
     <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=1200&q=80' }}
+      source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
       className="flex-1"
-      blurRadius={80}
+      blurRadius={10}
     >
-      <LinearGradient
-        colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
-        className="flex-1"
-      >
-        <SafeAreaView className="flex-1">
-          <ScrollView className="flex-1 px-5">
-            {/* Header */}
-            <View className="mt-4 mb-6 bg-purple-500/80 backdrop-blur-xl rounded-3xl p-6 border border-white/40">
-              <Text className="text-white text-3xl font-bold mb-2">🤖 AI Recipe Generator</Text>
-              <Text className="text-purple-100 text-sm">
+      <SafeAreaView className="flex-1">
+        <ScrollView className="flex-1 px-5">
+          {/* Header */}
+          <BlurView
+            intensity={20}
+            tint="light"
+            className="mt-4 mb-6 rounded-3xl overflow-hidden border border-white/30"
+            style={{ backgroundColor: 'rgba(168, 85, 247, 0.2)' }}
+          >
+            <LinearGradient
+              colors={['rgba(168, 85, 247, 0.3)', 'rgba(147, 51, 234, 0.2)']}
+              className="p-6"
+            >
+              <Text className="text-gray-900 text-3xl font-bold mb-2">🤖 AI Recipe Generator</Text>
+              <Text className="text-gray-700 text-sm">
                 Get personalized recipe suggestions based on your fridge items
               </Text>
-            </View>
+            </LinearGradient>
+          </BlurView>
 
-            {/* Ingredients Card */}
-            <View className="bg-white/25 backdrop-blur-xl rounded-3xl p-5 border border-white/40 mb-5">
+          {/* Ingredients Card */}
+          <BlurView
+            intensity={20}
+            tint="light"
+            className="rounded-3xl overflow-hidden border border-white/30 mb-5"
+            style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+          >
+            <LinearGradient
+              colors={['rgba(255, 255, 255, 0.15)', 'rgba(255, 255, 255, 0.05)']}
+              className="p-5"
+            >
             <Text className="text-gray-900 text-lg font-bold mb-3">Your Ingredients:</Text>
             {items.length > 0 ? (
               <View className="flex-row flex-wrap gap-2">
@@ -90,19 +106,35 @@ export default function RecipesScreen() {
                 No ingredients available. Add some items first!
               </Text>
             )}
-          </View>
+          </LinearGradient>
+          </BlurView>
 
           {/* Generate Button */}
           <TouchableOpacity
-            className={`bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl p-5 mb-5 items-center ${loading || items.length === 0 ? 'opacity-50' : ''}`}
+            activeOpacity={0.7}
             onPress={handleGenerateRecipes}
             disabled={loading || items.length === 0}
           >
-            {loading ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text className="text-white text-lg font-bold">✨ Generate Recipes</Text>
-            )}
+            <BlurView
+              intensity={20}
+              tint="light"
+              className="rounded-2xl overflow-hidden border border-white/30 mb-5"
+              style={{ 
+                backgroundColor: 'rgba(168, 85, 247, 0.3)',
+                opacity: loading || items.length === 0 ? 0.5 : 1
+              }}
+            >
+              <LinearGradient
+                colors={['rgba(168, 85, 247, 0.3)', 'rgba(236, 72, 153, 0.3)']}
+                className="p-5 items-center"
+              >
+                {loading ? (
+                  <ActivityIndicator color="#4B5563" />
+                ) : (
+                  <Text className="text-gray-900 text-lg font-bold">✨ Generate Recipes</Text>
+                )}
+              </LinearGradient>
+            </BlurView>
           </TouchableOpacity>
 
           {/* Recipes Display */}
@@ -115,16 +147,22 @@ export default function RecipesScreen() {
 
           {/* Info Card */}
           {!recipes && !loading && (
-            <View className="bg-purple-100/60 backdrop-blur-sm rounded-2xl p-5 border border-purple-200/50 mb-8">
-              <Text className="text-purple-900 text-sm leading-6">
-                💡 Tap the button above to get AI-powered recipe suggestions based on your
-                available ingredients. The AI will suggest creative and easy-to-make recipes!
-              </Text>
-            </View>
+            <BlurView
+              intensity={15}
+              tint="light"
+              className="rounded-2xl overflow-hidden border border-white/20 mb-8"
+              style={{ backgroundColor: 'rgba(233, 213, 255, 0.3)' }}
+            >
+              <View className="p-5">
+                <Text className="text-purple-900 text-sm leading-6">
+                  💡 Tap the button above to get AI-powered recipe suggestions based on your
+                  available ingredients. The AI will suggest creative and easy-to-make recipes!
+                </Text>
+              </View>
+            </BlurView>
           )}
         </ScrollView>
-        </SafeAreaView>
-      </LinearGradient>
+      </SafeAreaView>
     </ImageBackground>
   );
 }
