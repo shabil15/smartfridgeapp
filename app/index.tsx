@@ -1,9 +1,10 @@
 import { FridgeItem, supabase } from '@/lib/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ImageBackground, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
@@ -11,6 +12,8 @@ export default function DashboardScreen() {
   const [loading, setLoading] = useState(true);
   const [_, setStats] = useState({ total: 0, expiringSoon: 0 });
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [userName, setUserName] = useState('Michelle');
+  const [isEditingName, setIsEditingName] = useState(false);
 
   const calculateStats = useCallback((items: FridgeItem[]) => {
     const today = new Date();
@@ -47,8 +50,37 @@ export default function DashboardScreen() {
     }
   }, [calculateStats]);
 
+  const loadUserName = async () => {
+    try {
+      const savedName = await AsyncStorage.getItem('userName');
+      if (savedName !== null) {
+        setUserName(savedName);
+      }
+    } catch (error) {
+      console.error('Error loading user name:', error);
+    }
+  };
+
+  const saveUserName = async (name: string) => {
+    try {
+      await AsyncStorage.setItem('userName', name);
+    } catch (error) {
+      console.error('Error saving user name:', error);
+    }
+  };
+
+  const handleNameSave = () => {
+    if (userName.trim()) {
+      saveUserName(userName.trim());
+      setIsEditingName(false);
+    } else {
+      Alert.alert('Error', 'Please enter a valid name');
+    }
+  };
+
   useEffect(() => {
     loadItems();
+    loadUserName();
     
     // Update time every minute
     const timer = setInterval(() => {
@@ -57,6 +89,20 @@ export default function DashboardScreen() {
 
     return () => clearInterval(timer);
   }, [loadItems]);
+
+  // Get greeting based on time
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour >= 5 && hour < 12) {
+      return 'Good morning';
+    } else if (hour >= 12 && hour < 17) {
+      return 'Good afternoon';
+    } else if (hour >= 17 && hour < 21) {
+      return 'Good evening';
+    } else {
+      return 'Good night';
+    }
+  };
 
   // Format date and time
   const formatDate = () => {
@@ -126,9 +172,23 @@ export default function DashboardScreen() {
                   >
                     <Text className="text-2xl">👋</Text>
                   </BlurView>
-                  <View>
-                    <Text className="text-gray-600 text-sm">Good morning,</Text>
-                    <Text className="text-gray-900 text-2xl font-bold">Michelle</Text>
+                  <View className="flex-1">
+                    <Text className="text-gray-600 text-sm">{getGreeting()},</Text>
+                    {isEditingName ? (
+                      <TextInput
+                        value={userName}
+                        onChangeText={setUserName}
+                        onBlur={handleNameSave}
+                        onSubmitEditing={handleNameSave}
+                        autoFocus
+                        className="text-gray-900 text-2xl font-bold py-0"
+                        style={{ outlineWidth: 0 }}
+                      />
+                    ) : (
+                      <TouchableOpacity onPress={() => setIsEditingName(true)}>
+                        <Text className="text-gray-900 text-2xl font-bold">{userName}</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </View>
               </LinearGradient>
@@ -183,30 +243,52 @@ export default function DashboardScreen() {
                 </View>
 
                 {/* Items List */}
-                {items.slice(0, 5).map((item) => (
-                  <BlurView
-                    key={item.id}
-                    intensity={10}
-                    tint="light"
-                    className="rounded-2xl overflow-hidden border border-white/20 mb-3"
-                    style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
-                  >
-                    <View className="p-3 flex-row items-center">
+                {items.length === 0 ? (
+                  <View className="justify-center items-center py-8">
+                    <Text className="text-6xl mb-4">🍽️</Text>
+                    <Text className="text-gray-700 text-lg font-semibold mb-6 text-center">No items in your fridge</Text>
+                    <TouchableOpacity
+                      activeOpacity={0.7}
+                      onPress={() => router.push('/add-item')}
+                    >
                       <BlurView
                         intensity={15}
                         tint="light"
-                        className="w-12 h-12 rounded-full mr-3 overflow-hidden border border-white/20"
-                        style={{ backgroundColor: 'rgba(251, 113, 133, 0.3)' }}
+                        className="rounded-2xl overflow-hidden border border-white/30"
+                        style={{ backgroundColor: 'rgba(99, 102, 241, 0.3)' }}
                       >
-                        <View className="w-full h-full items-center justify-center" />
+                        <View className="px-8 py-4">
+                          <Text className="text-gray-900 text-base font-bold">➕ Add Your First Item</Text>
+                        </View>
                       </BlurView>
-                      <View className="flex-1">
-                        <Text className="text-gray-900 font-semibold text-base">{item.name}</Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  items.slice(0, 5).map((item) => (
+                    <BlurView
+                      key={item.id}
+                      intensity={10}
+                      tint="light"
+                      className="rounded-2xl overflow-hidden border border-white/20 mb-3"
+                      style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                    >
+                      <View className="p-3 flex-row items-center">
+                        <BlurView
+                          intensity={15}
+                          tint="light"
+                          className="w-12 h-12 rounded-full mr-3 overflow-hidden border border-white/20"
+                          style={{ backgroundColor: 'rgba(251, 113, 133, 0.3)' }}
+                        >
+                          <View className="w-full h-full items-center justify-center" />
+                        </BlurView>
+                        <View className="flex-1">
+                          <Text className="text-gray-900 font-semibold text-base">{item.name}</Text>
+                        </View>
+                        <Text className="text-gray-700 font-medium">{item.quantity}{item.unit}</Text>
                       </View>
-                      <Text className="text-gray-700 font-medium">{item.quantity}{item.unit}</Text>
-                    </View>
-                  </BlurView>
-                ))}
+                    </BlurView>
+                  ))
+                )}
               </LinearGradient>
             </BlurView>
 
@@ -223,7 +305,7 @@ export default function DashboardScreen() {
                   className="rounded-3xl overflow-hidden border border-white/30"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    minHeight: 160,
+                    height: 180,
                   }}
                 >
                   <LinearGradient
@@ -250,7 +332,7 @@ export default function DashboardScreen() {
                   className="rounded-3xl overflow-hidden border border-white/30"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                    minHeight: 160,
+                    height: 180,
                   }}
                 >
                   <LinearGradient
@@ -258,7 +340,7 @@ export default function DashboardScreen() {
                     className="p-8 items-center justify-center h-full"
                   >
                     <View className="mb-3 items-center">
-                      <Text className="text-6xl mb-2">🤖</Text>
+                      <Text className="text-6xl mb-2">✨</Text>
                     </View>
                     <Text className="text-gray-900 text-center text-lg font-bold">Recipes</Text>
                     <Text className="text-gray-600 text-center text-xs mt-1">AI-powered suggestions</Text>
