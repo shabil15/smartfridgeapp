@@ -1,98 +1,150 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { FridgeItem, supabase } from '@/lib/supabase';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, ImageBackground, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function DashboardScreen() {
+  const [items, setItems] = useState<FridgeItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({ total: 0, expiringSoon: 0 });
 
-export default function HomeScreen() {
+  const calculateStats = useCallback((items: FridgeItem[]) => {
+    const today = new Date();
+    const expiringSoon = items.filter(item => {
+      if (!item.expiry_date) return false;
+      const expiry = new Date(item.expiry_date);
+      const daysUntilExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      return daysUntilExpiry >= 0 && daysUntilExpiry <= 3;
+    }).length;
+
+    setStats({ total: items.length, expiringSoon });
+  }, []);
+
+  const loadItems = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('fridge_items')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading items:', error);
+        if (error.code === '42P01') {
+          alert('Please create the fridge_items table in Supabase first.');
+        }
+      } else {
+        setItems(data || []);
+        calculateStats(data || []);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [calculateStats]);
+
+  useEffect(() => {
+    loadItems();
+  }, [loadItems]);
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+        <ActivityIndicator size="large" color="#8B5CF6" />
+      </View>
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <ImageBackground
+      source={{ uri: 'https://images.unsplash.com/photo-1557683311-eac922347aa1?w=800' }}
+      className="flex-1"
+      blurRadius={50}
+    >
+      <LinearGradient
+        colors={['rgba(219, 234, 254, 0.8)', 'rgba(243, 232, 255, 0.8)', 'rgba(254, 242, 242, 0.8)']}
+        className="flex-1"
+      >
+        <ScrollView className="flex-1 px-5">
+          {/* Header with glassmorphism */}
+          <View className="mt-16 mb-6 bg-white/20 backdrop-blur-xl rounded-3xl p-6 border border-white/30 shadow-2xl">
+            <View className="flex-row items-center mb-2">
+              <View className="w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full items-center justify-center mr-3">
+                <Text className="text-2xl">👋</Text>
+              </View>
+              <View>
+                <Text className="text-gray-700 text-base font-medium">Good morning,</Text>
+                <Text className="text-gray-900 text-2xl font-bold">Michelle</Text>
+              </View>
+            </View>
+          </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+          {/* Weather/Date Card */}
+          <View className="flex-row mb-6 gap-3">
+            <View className="flex-1 bg-white/25 backdrop-blur-xl rounded-2xl p-4 border border-white/30">
+              <Text className="text-gray-700 text-sm mb-1">Thursday, 17 Sep</Text>
+              <Text className="text-gray-900 text-xl font-bold">11:24am</Text>
+            </View>
+            <View className="flex-1 bg-white/25 backdrop-blur-xl rounded-2xl p-4 border border-white/30">
+              <Text className="text-gray-700 text-sm mb-1">Mostly sunny</Text>
+              <View className="flex-row items-center">
+                <Text className="text-gray-900 text-xl font-bold">18°C</Text>
+                <Text className="text-3xl ml-2">☀️</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* What I have in section */}
+          <View className="bg-white/20 backdrop-blur-xl rounded-3xl p-5 border border-white/30 mb-6">
+            <Text className="text-gray-900 text-xl font-bold mb-4">What I have in</Text>
+            
+            <View className="flex-row mb-4">
+              <TouchableOpacity className="bg-white/40 px-6 py-2 rounded-full mr-3">
+                <Text className="text-gray-900 font-semibold">Fridge</Text>
+              </TouchableOpacity>
+              <TouchableOpacity className="bg-white/20 px-6 py-2 rounded-full">
+                <Text className="text-gray-700 font-medium">Pantry</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Items List */}
+            {items.slice(0, 5).map((item) => (
+              <View key={item.id} className="bg-white/30 rounded-2xl p-3 mb-3 flex-row items-center">
+                <View className="w-12 h-12 bg-gradient-to-br from-pink-300 to-red-400 rounded-full mr-3" />
+                <View className="flex-1">
+                  <Text className="text-gray-900 font-semibold text-base">{item.name}</Text>
+                </View>
+                <Text className="text-gray-700 font-medium">{item.quantity}{item.unit}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* Action Buttons */}
+          <View className="mb-8">
+            <TouchableOpacity 
+              className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-4 mb-3 shadow-lg"
+              onPress={() => router.push('/add-item')}
+            >
+              <Text className="text-white text-center text-lg font-bold">➕ Add Item</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              className="bg-white/30 backdrop-blur-xl border border-white/40 rounded-2xl p-4 mb-3"
+              onPress={() => router.push('/inventory')}
+            >
+              <Text className="text-gray-900 text-center text-lg font-bold">📦 View Inventory ({stats.total})</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              className="bg-gradient-to-r from-purple-500 to-pink-600 rounded-2xl p-4 shadow-lg"
+              onPress={() => router.push('/recipes')}
+            >
+              <Text className="text-white text-center text-lg font-bold">🤖 Generate Recipes</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </LinearGradient>
+    </ImageBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
