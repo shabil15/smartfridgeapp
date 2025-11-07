@@ -1,21 +1,44 @@
 import { supabase } from '@/lib/supabase';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, ImageBackground, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ImageBackground, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AddItemScreen() {
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('pcs');
-  const [expiryDate, setExpiryDate] = useState('');
+  const [expiryDate, setExpiryDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [category, setCategory] = useState('Other');
   const [loading, setLoading] = useState(false);
 
   const categories = ['Dairy', 'Vegetables', 'Fruits', 'Meat', 'Grains', 'Beverages', 'Other'];
   const units = ['pcs', 'kg', 'g', 'L','dozen'];
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setExpiryDate(selectedDate);
+    }
+  };
+
+  const formatDateForDisplay = (date: Date | null) => {
+    if (!date) return 'Select expiry date';
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const formatDateForDB = (date: Date | null) => {
+    if (!date) return null;
+    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD
+  };
 
   const handleAddItem = async () => {
     if (!name.trim()) {
@@ -36,7 +59,7 @@ export default function AddItemScreen() {
           name: name.trim(),
           quantity: Number(quantity),
           unit,
-          expiry_date: expiryDate || null,
+          expiry_date: formatDateForDB(expiryDate),
           category,
         },
       ]);
@@ -57,9 +80,9 @@ export default function AddItemScreen() {
 
   return (
     <ImageBackground
-      source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
+      source={require('@/assets/images/Gemini_Generated_Image_rkl2cfrkl2cfrkl2.png')}
       className="flex-1"
-      blurRadius={10}
+      blurRadius={20}
     >
       <SafeAreaView className="flex-1">
         <ScrollView className="flex-1 px-5">
@@ -149,14 +172,25 @@ export default function AddItemScreen() {
 
             {/* Expiry Date */}
             <View className="mb-5">
-              <Text className="text-gray-800 text-base font-semibold mb-2">Expiry Date (YYYY-MM-DD)</Text>
-              <TextInput
-                className="bg-white/40 backdrop-blur-sm border border-white/50 rounded-2xl px-4 py-4 text-gray-900 text-base"
-                value={expiryDate}
-                onChangeText={setExpiryDate}
-                placeholder="2024-12-31"
-                placeholderTextColor="#9CA3AF"
-              />
+              <Text className="text-gray-800 text-base font-semibold mb-2">Expiry Date</Text>
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                className="bg-white/40 backdrop-blur-sm border border-white/50 rounded-2xl px-4 py-4"
+              >
+                <Text className={`text-base ${expiryDate ? 'text-gray-900' : 'text-gray-400'}`}>
+                  {formatDateForDisplay(expiryDate)}
+                </Text>
+              </TouchableOpacity>
+
+              {showDatePicker && (
+                <DateTimePicker
+                  value={expiryDate || new Date()}
+                  mode="date"
+                  display="default"
+                  onChange={onDateChange}
+                  minimumDate={new Date()}
+                />
+              )}
             </View>
           </LinearGradient>
           </BlurView>

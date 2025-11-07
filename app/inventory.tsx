@@ -69,10 +69,10 @@ export default function InventoryScreen() {
   if (loading) {
     return (
       <ImageBackground
-        source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
-        className="flex-1"
-        blurRadius={10}
-      >
+            source={require('@/assets/images/Gemini_Generated_Image_rkl2cfrkl2cfrkl2.png')}
+            className="flex-1"
+            blurRadius={20}
+          >
         <SafeAreaView className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#FFFFFF" />
         </SafeAreaView>
@@ -82,10 +82,10 @@ export default function InventoryScreen() {
 
   return (
     <ImageBackground
-      source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
-      className="flex-1"
-      blurRadius={10}
-    >
+          source={require('@/assets/images/Gemini_Generated_Image_rkl2cfrkl2cfrkl2.png')}
+          className="flex-1"
+          blurRadius={20}
+        >
       <SafeAreaView className="flex-1">
         <View className="flex-1">
           {/* Header */}
@@ -99,7 +99,7 @@ export default function InventoryScreen() {
               colors={['rgba(255, 255, 255, 0.2)', 'rgba(255, 255, 255, 0.05)']}
               className="p-6"
             >
-              <Text className="text-gray-900 text-3xl font-bold">📦 Fridge Inventory</Text>
+              <Text className="text-gray-900 text-3xl font-bold">What I have in Fridge</Text>
               <Text className="text-gray-600 text-base mt-2">{items.length} items stored</Text>
             </LinearGradient>
           </BlurView>

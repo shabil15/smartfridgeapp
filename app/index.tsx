@@ -15,6 +15,19 @@ export default function DashboardScreen() {
   const [userName, setUserName] = useState('Michelle');
   const [isEditingName, setIsEditingName] = useState(false);
 
+  const getCategoryEmoji = (category: string) => {
+    const emojis: Record<string, string> = {
+      'Dairy': '🥛',
+      'Vegetables': '🥬',
+      'Fruits': '🍎',
+      'Meat': '🍖',
+      'Grains': '🌾',
+      'Beverages': '🥤',
+      'Other': '🍲',
+    };
+    return emojis[category] || '🍲';
+  };
+
   const calculateStats = useCallback((items: FridgeItem[]) => {
     const today = new Date();
     const expiringSoon = items.filter(item => {
@@ -124,10 +137,10 @@ export default function DashboardScreen() {
   if (loading) {
     return (
       <ImageBackground
-        source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
-        className="flex-1"
-        blurRadius={5}
-      >
+      source={require('@/assets/images/Gemini_Generated_Image_rkl2cfrkl2cfrkl2.png')}
+      className="flex-1"
+      blurRadius={20}
+    >
         <LinearGradient
           colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
           className="flex-1"
@@ -142,9 +155,9 @@ export default function DashboardScreen() {
 
   return (
     <ImageBackground
-      source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
+      source={require('@/assets/images/Gemini_Generated_Image_rkl2cfrkl2cfrkl2.png')}
       className="flex-1"
-      blurRadius={10}
+      blurRadius={20}
     >
       {/* <LinearGradient
         colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
@@ -264,27 +277,31 @@ export default function DashboardScreen() {
                     </TouchableOpacity>
                   </View>
                 ) : (
-                  items.slice(0, 5).map((item) => (
+                  items.slice(0, 4).map((item) => (
                     <BlurView
                       key={item.id}
-                      intensity={10}
+                      intensity={15}
                       tint="light"
-                      className="rounded-2xl overflow-hidden border border-white/20 mb-3"
-                      style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                      className="rounded-3xl overflow-hidden border border-white/20 mb-3"
+                      style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)' }}
                     >
-                      <View className="p-3 flex-row items-center">
-                        <BlurView
-                          intensity={15}
-                          tint="light"
-                          className="w-12 h-12 rounded-full mr-3 overflow-hidden border border-white/20"
-                          style={{ backgroundColor: 'rgba(251, 113, 133, 0.3)' }}
-                        >
-                          <View className="w-full h-full items-center justify-center" />
-                        </BlurView>
-                        <View className="flex-1">
-                          <Text className="text-gray-900 font-semibold text-base">{item.name}</Text>
+                      <View className="p-4 flex-row items-center">
+                        {/* Category Emoji with circular background */}
+                        <View className="w-14 h-14 rounded-full bg-white/50 items-center justify-center mr-4">
+                          <Text className="text-3xl">{getCategoryEmoji(item.category)}</Text>
                         </View>
-                        <Text className="text-gray-700 font-medium">{item.quantity}{item.unit}</Text>
+
+                        {/* Item Name */}
+                        <View className="flex-1">
+                          <Text className="text-gray-900 text-base font-semibold">{item.name}</Text>
+                        </View>
+
+                        {/* Quantity */}
+                        <View className="bg-white/40 rounded-full p-4">
+                          <Text className="text-gray-800 text-sm font-medium">
+                            {item.quantity}{item.unit}
+                          </Text>
+                        </View>
                       </View>
                     </BlurView>
                   ))

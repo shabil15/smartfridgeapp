@@ -55,9 +55,9 @@ export default function RecipesScreen() {
 
   return (
     <ImageBackground
-      source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
+      source={require('@/assets/images/Gemini_Generated_Image_rkl2cfrkl2cfrkl2.png')}
       className="flex-1"
-      blurRadius={10}
+      blurRadius={20}
     >
       <SafeAreaView className="flex-1">
         <ScrollView className="flex-1 px-5">
