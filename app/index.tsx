@@ -2,7 +2,7 @@ import { FridgeItem, supabase } from '@/lib/supabase';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ImageBackground, Platform, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function DashboardScreen() {
@@ -51,18 +51,33 @@ export default function DashboardScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center" style={{ backgroundColor: '#E6E9F0' }}>
-        <ActivityIndicator size="large" color="#8B5CF6" />
-      </SafeAreaView>
+      <ImageBackground
+        source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
+        className="flex-1"
+        blurRadius={10}
+      >
+        <LinearGradient
+          colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
+          className="flex-1"
+        >
+          <SafeAreaView className="flex-1 justify-center items-center">
+            <ActivityIndicator size="large" color="#FFFFFF" />
+          </SafeAreaView>
+        </LinearGradient>
+      </ImageBackground>
     );
   }
 
   return (
-    <View className="flex-1" style={{ backgroundColor: '#D8DCE8' }}>
-      <LinearGradient
-        colors={['#DBE7FF', '#E8E4FF', '#F5E8F5']}
+    <ImageBackground
+      source={require('@/assets/images/jason-briscoe-GliaHAJ3_5A-unsplash.jpg')}
+      className="flex-1"
+      blurRadius={10}
+    >
+      {/* <LinearGradient
+        colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
         className="flex-1"
-      >
+      > */}
         <SafeAreaView className="flex-1">
           <ScrollView className="flex-1 px-5">
             {/* Header with glassmorphism */}
@@ -128,26 +143,7 @@ export default function DashboardScreen() {
                 borderColor: 'rgba(255, 255, 255, 0.5)',
               }}
             >
-              <Text className="text-gray-900 text-xl font-bold mb-4">What I have in</Text>
-              
-              <View className="flex-row mb-4">
-                <TouchableOpacity 
-                  className="px-6 py-2 rounded-full mr-3"
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-                  }}
-                >
-                  <Text className="text-gray-900 font-semibold">Fridge</Text>
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  className="px-6 py-2 rounded-full"
-                  style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                  }}
-                >
-                  <Text className="text-gray-700 font-medium">Pantry</Text>
-                </TouchableOpacity>
-              </View>
+              <Text className="text-gray-900 text-xl font-bold mb-4">What I have in Fridge</Text>
 
               {/* Items List */}
               {items.slice(0, 5).map((item) => (
@@ -208,7 +204,7 @@ export default function DashboardScreen() {
             </View>
           </ScrollView>
         </SafeAreaView>
-      </LinearGradient>
-    </View>
+      {/* </LinearGradient> */}
+    </ImageBackground>
   );
 }

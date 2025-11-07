@@ -54,12 +54,12 @@ export default function RecipesScreen() {
 
   return (
     <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1557683311-eac922347aa1?w=800' }}
+      source={{ uri: 'https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=1200&q=80' }}
       className="flex-1"
-      blurRadius={50}
+      blurRadius={80}
     >
       <LinearGradient
-        colors={['rgba(236, 233, 254, 0.85)', 'rgba(249, 232, 255, 0.85)', 'rgba(254, 242, 242, 0.85)']}
+        colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
         className="flex-1"
       >
         <SafeAreaView className="flex-1">

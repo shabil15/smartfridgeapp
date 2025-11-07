@@ -67,20 +67,31 @@ export default function InventoryScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-        <ActivityIndicator size="large" color="#8B5CF6" />
-      </SafeAreaView>
+      <ImageBackground
+        source={{ uri: 'https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=1200&q=80' }}
+        className="flex-1"
+        blurRadius={80}
+      >
+        <LinearGradient
+          colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
+          className="flex-1"
+        >
+          <SafeAreaView className="flex-1 justify-center items-center">
+            <ActivityIndicator size="large" color="#FFFFFF" />
+          </SafeAreaView>
+        </LinearGradient>
+      </ImageBackground>
     );
   }
 
   return (
     <ImageBackground
-      source={{ uri: 'https://images.unsplash.com/photo-1557683311-eac922347aa1?w=800' }}
+      source={{ uri: 'https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?w=1200&q=80' }}
       className="flex-1"
-      blurRadius={50}
+      blurRadius={20}
     >
       <LinearGradient
-        colors={['rgba(219, 234, 254, 0.8)', 'rgba(243, 232, 255, 0.8)', 'rgba(254, 242, 242, 0.8)']}
+        colors={['rgba(0, 0, 0, 0.3)', 'rgba(0, 0, 0, 0.5)']}
         className="flex-1"
       >
         <SafeAreaView className="flex-1">
