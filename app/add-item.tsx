@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ImageBackground, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRefresh } from '@/contexts/RefreshContext';
 
 export default function AddItemScreen() {
   const [name, setName] = useState('');
@@ -15,6 +16,7 @@ export default function AddItemScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [category, setCategory] = useState('Other');
   const [loading, setLoading] = useState(false);
+  const { triggerRefresh } = useRefresh();
 
   const categories = ['Dairy', 'Vegetables', 'Fruits', 'Meat', 'Grains', 'Beverages', 'Other'];
   const units = ['pcs', 'kg', 'g', 'L','mL','dozen'];
@@ -67,6 +69,7 @@ export default function AddItemScreen() {
       if (error) {
         Alert.alert('Error', error.message);
       } else {
+        triggerRefresh(); // Trigger refresh across all screens
         Alert.alert('Success', 'Item added successfully!');
         router.back();
       }

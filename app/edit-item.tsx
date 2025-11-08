@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, ImageBackground, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRefresh } from '@/contexts/RefreshContext';
 
 export default function EditItemScreen() {
   const params = useLocalSearchParams();
@@ -19,6 +20,7 @@ export default function EditItemScreen() {
   const [category, setCategory] = useState('Other');
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const { triggerRefresh } = useRefresh();
 
   const categories = ['Dairy', 'Vegetables', 'Fruits', 'Meat', 'Grains', 'Beverages', 'Other'];
   const units = ['pcs', 'kg', 'g', 'L', 'mL', 'dozen'];
@@ -107,6 +109,7 @@ export default function EditItemScreen() {
       if (error) {
         Alert.alert('Error', error.message);
       } else {
+        triggerRefresh(); // Trigger refresh across all screens
         Alert.alert('Success', 'Item updated successfully!');
         router.back();
       }

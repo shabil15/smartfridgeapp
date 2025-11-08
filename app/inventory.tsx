@@ -6,14 +6,24 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, ImageBackground, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRefresh } from '@/contexts/RefreshContext';
 
 export default function InventoryScreen() {
   const [items, setItems] = useState<FridgeItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { refreshTrigger, triggerRefresh } = useRefresh();
 
   useEffect(() => {
     loadItems();
   }, []);
+
+  // Listen to refresh trigger from context
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      loadItems();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshTrigger]);
 
   const loadItems = async () => {
     try {
@@ -51,7 +61,7 @@ export default function InventoryScreen() {
               if (error) {
                 Alert.alert('Error', 'Failed to delete item');
               } else {
-                loadItems();
+                triggerRefresh(); // Trigger refresh across all screens
               }
             } catch (error) {
               console.error('Error removing item:', error);
