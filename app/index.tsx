@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ImageBackground, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRefresh } from '@/contexts/RefreshContext';
 
 export default function DashboardScreen() {
   const [items, setItems] = useState<FridgeItem[]>([]);
@@ -14,6 +15,7 @@ export default function DashboardScreen() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [userName, setUserName] = useState('Michelle');
   const [isEditingName, setIsEditingName] = useState(false);
+  const { refreshTrigger } = useRefresh();
 
   const getCategoryEmoji = (category: string) => {
     const emojis: Record<string, string> = {
@@ -103,6 +105,14 @@ export default function DashboardScreen() {
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount - intentionally omitting loadItems to prevent re-renders
+
+  // Listen to refresh trigger from context
+  useEffect(() => {
+    if (refreshTrigger > 0) {
+      loadItems();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refreshTrigger]);
 
   // Get greeting based on time
   const getGreeting = () => {
