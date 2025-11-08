@@ -63,7 +63,7 @@ export default function InventoryScreen() {
   };
 
   const handleEditItem = (item: FridgeItem) => {
-    Alert.alert('Edit Item', 'Edit functionality will be implemented soon');
+    router.push(`/edit-item?id=${item.id}`);
   };
 
   if (loading) {

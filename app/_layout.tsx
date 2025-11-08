@@ -45,6 +45,7 @@ export default function RootLayout() {
           <Stack.Screen name="add-item" options={{ headerShown: false }} />
           <Stack.Screen name="inventory" options={{ headerShown: false }} />
           <Stack.Screen name="recipes" options={{ headerShown: false }} />
+          <Stack.Screen name="edit-item" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
         </Stack>
         <StatusBar style="auto" />

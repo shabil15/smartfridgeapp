@@ -17,7 +17,7 @@ export default function AddItemScreen() {
   const [loading, setLoading] = useState(false);
 
   const categories = ['Dairy', 'Vegetables', 'Fruits', 'Meat', 'Grains', 'Beverages', 'Other'];
-  const units = ['pcs', 'kg', 'g', 'L','dozen'];
+  const units = ['pcs', 'kg', 'g', 'L','mL','dozen'];
 
   const onDateChange = (event: any, selectedDate?: Date) => {
     setShowDatePicker(Platform.OS === 'ios');
