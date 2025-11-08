@@ -146,9 +146,7 @@ export default function RecipesScreen() {
           {/* Header */}
           <BlurView
             intensity={20}
-            tint="light"
             className="mt-4 mb-6 rounded-3xl overflow-hidden border border-white/30"
-            style={{ backgroundColor: 'rgba(168, 85, 247, 0.2)' }}
           >
             <BlurView
               style={{ backgroundColor: 'rgba(99, 102, 241, 0.3)' }}

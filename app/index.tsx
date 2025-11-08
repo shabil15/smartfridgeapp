@@ -101,7 +101,8 @@ export default function DashboardScreen() {
     }, 60000);
 
     return () => clearInterval(timer);
-  }, [loadItems]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount - intentionally omitting loadItems to prevent re-renders
 
   // Get greeting based on time
   const getGreeting = () => {
