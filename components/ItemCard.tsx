@@ -24,6 +24,40 @@ export default function ItemCard({ item, onEdit, onRemove }: ItemCardProps) {
     return emojis[category] || '';
   };
 
+  const getDaysUntilExpiry = () => {
+    if (!item.expiry_date) return null;
+    
+    const today = new Date();
+    const expiry = new Date(item.expiry_date);
+    const daysUntilExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return daysUntilExpiry;
+  };
+
+  const getExpiryText = () => {
+    const days = getDaysUntilExpiry();
+    if (days === null) return null;
+    
+    if (days < 0) {
+      return `Expired ${Math.abs(days)} ${Math.abs(days) === 1 ? 'day' : 'days'} ago`;
+    } else if (days === 0) {
+      return 'Expires today';
+    } else if (days === 1) {
+      return 'Expires tomorrow';
+    } else {
+      return `${days} days left`;
+    }
+  };
+
+  const getExpiryColor = () => {
+    const days = getDaysUntilExpiry();
+    if (days === null) return 'text-gray-500';
+    
+    if (days < 0) return 'text-red-600'; // Expired
+    if (days <= 3) return 'text-orange-600'; // Expiring soon
+    return 'text-green-600'; // Fresh
+  };
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
@@ -43,6 +77,11 @@ export default function ItemCard({ item, onEdit, onRemove }: ItemCardProps) {
           {/* Item Name */}
           <View className="flex-1">
             <Text className="text-gray-900 text-base font-semibold">{item.name}</Text>
+            {item.expiry_date && (
+              <Text className={`text-xs font-medium mt-1 ${getExpiryColor()}`}>
+                {getExpiryText()}
+              </Text>
+            )}
           </View>
 
           {/* Quantity - Always visible */}

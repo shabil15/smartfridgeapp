@@ -117,6 +117,41 @@ export default function DashboardScreen() {
     }
   };
 
+  
+  const getDaysUntilExpiry = (expiry_date: string | null) => {
+    if (!expiry_date) return null;
+    
+    const today = new Date();
+    const expiry = new Date(expiry_date);
+    const daysUntilExpiry = Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    return daysUntilExpiry;
+  };
+
+  const getExpiryText = (expiry_date: string | null) => {
+    const days = getDaysUntilExpiry(expiry_date);
+    if (days === null) return null;
+    
+    if (days < 0) {
+      return `Expired ${Math.abs(days)} ${Math.abs(days) === 1 ? 'day' : 'days'} ago`;
+    } else if (days === 0) {
+      return 'Expires today';
+    } else if (days === 1) {
+      return 'Expires tomorrow';
+    } else {
+      return `${days} days left`;
+    }
+  };
+
+  const getExpiryColor = (expiry_date: string | null) => {
+    const days = getDaysUntilExpiry(expiry_date);
+    if (days === null) return 'text-gray-500';
+    
+    if (days < 0) return 'text-red-600'; // Expired
+    if (days <= 3) return 'text-orange-600'; // Expiring soon
+    return 'text-green-600'; // Fresh
+  };
+
   // Format date and time
   const formatDate = () => {
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -294,6 +329,11 @@ export default function DashboardScreen() {
                         {/* Item Name */}
                         <View className="flex-1">
                           <Text className="text-gray-900 text-base font-semibold">{item.name}</Text>
+                           {item.expiry_date && (
+                                        <Text className={`text-xs font-medium mt-1 ${getExpiryColor(item.expiry_date)}`}>
+                                          {getExpiryText(item.expiry_date)}
+                                        </Text>
+                                      )}
                         </View>
 
                         {/* Quantity */}
