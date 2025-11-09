@@ -13,5 +13,6 @@ export interface FridgeItem {
   unit: string;
   expiry_date?: string;
   category: string;
+  device_id: string;
   created_at?: string;
 }
