@@ -1,3 +1,5 @@
+import { useRefresh } from '@/contexts/RefreshContext';
+import { getDeviceId } from '@/lib/deviceId';
 import { supabase } from '@/lib/supabase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BlurView } from 'expo-blur';
@@ -6,7 +8,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, ImageBackground, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRefresh } from '@/contexts/RefreshContext';
 
 export default function EditItemScreen() {
   const params = useLocalSearchParams();
@@ -32,10 +33,12 @@ export default function EditItemScreen() {
 
   const loadItem = async () => {
     try {
+      const deviceId = await getDeviceId();
       const { data, error } = await supabase
         .from('fridge_items')
         .select('*')
         .eq('id', itemId)
+        .eq('device_id', deviceId) // Ensure user can only edit their own items
         .single();
 
       if (error) {
@@ -95,6 +98,7 @@ export default function EditItemScreen() {
     setLoading(true);
 
     try {
+      const deviceId = await getDeviceId();
       const { error } = await supabase
         .from('fridge_items')
         .update({
@@ -104,7 +108,8 @@ export default function EditItemScreen() {
           expiry_date: formatDateForDB(expiryDate),
           category,
         })
-        .eq('id', itemId);
+        .eq('id', itemId)
+        .eq('device_id', deviceId); // Ensure user can only update their own items
 
       if (error) {
         Alert.alert('Error', error.message);

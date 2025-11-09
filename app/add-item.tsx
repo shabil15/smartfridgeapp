@@ -1,3 +1,5 @@
+import { useRefresh } from '@/contexts/RefreshContext';
+import { getDeviceId } from '@/lib/deviceId';
 import { supabase } from '@/lib/supabase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BlurView } from 'expo-blur';
@@ -6,7 +8,6 @@ import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, ImageBackground, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRefresh } from '@/contexts/RefreshContext';
 
 export default function AddItemScreen() {
   const [name, setName] = useState('');
@@ -56,6 +57,7 @@ export default function AddItemScreen() {
     setLoading(true);
 
     try {
+      const deviceId = await getDeviceId();
       const { error } = await supabase.from('fridge_items').insert([
         {
           name: name.trim(),
@@ -63,6 +65,7 @@ export default function AddItemScreen() {
           unit,
           expiry_date: formatDateForDB(expiryDate),
           category,
+          device_id: deviceId, // Add device_id for isolation
         },
       ]);
 

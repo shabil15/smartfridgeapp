@@ -1,3 +1,5 @@
+import { useRefresh } from '@/contexts/RefreshContext';
+import { getDeviceId } from '@/lib/deviceId';
 import { FridgeItem, supabase } from '@/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from 'expo-blur';
@@ -6,7 +8,6 @@ import { router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ImageBackground, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRefresh } from '@/contexts/RefreshContext';
 
 export default function DashboardScreen() {
   const [items, setItems] = useState<FridgeItem[]>([]);
@@ -44,9 +45,11 @@ export default function DashboardScreen() {
 
   const loadItems = useCallback(async () => {
     try {
+      const deviceId = await getDeviceId();
       const { data, error } = await supabase
         .from('fridge_items')
         .select('*')
+        .eq('device_id', deviceId)
         .order('created_at', { ascending: false });
 
       if (error) {

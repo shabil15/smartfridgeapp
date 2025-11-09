@@ -1,4 +1,6 @@
 import ItemCard from '@/components/ItemCard';
+import { useRefresh } from '@/contexts/RefreshContext';
+import { getDeviceId } from '@/lib/deviceId';
 import { FridgeItem, supabase } from '@/lib/supabase';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -6,7 +8,6 @@ import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, ImageBackground, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRefresh } from '@/contexts/RefreshContext';
 
 export default function InventoryScreen() {
   const [items, setItems] = useState<FridgeItem[]>([]);
@@ -22,14 +23,15 @@ export default function InventoryScreen() {
     if (refreshTrigger > 0) {
       loadItems();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshTrigger]);
 
   const loadItems = async () => {
     try {
+      const deviceId = await getDeviceId();
       const { data, error } = await supabase
         .from('fridge_items')
         .select('*')
+        .eq('device_id', deviceId)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -56,7 +58,12 @@ export default function InventoryScreen() {
           style: 'destructive',
           onPress: async () => {
             try {
-              const { error } = await supabase.from('fridge_items').delete().eq('id', id);
+              const deviceId = await getDeviceId();
+              const { error } = await supabase
+                .from('fridge_items')
+                .delete()
+                .eq('id', id)
+                .eq('device_id', deviceId); // Extra security - only delete own items
 
               if (error) {
                 Alert.alert('Error', 'Failed to delete item');

@@ -1,4 +1,5 @@
 import RecipeCard, { Recipe } from '@/components/RecipeCard';
+import { getDeviceId } from '@/lib/deviceId';
 import { generateRecipe } from '@/lib/gemini';
 import { FridgeItem, supabase } from '@/lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -53,9 +54,11 @@ export default function RecipesScreen() {
 
   const loadItems = async () => {
     try {
+      const deviceId = await getDeviceId();
       const { data, error } = await supabase
         .from('fridge_items')
-        .select('*');
+        .select('*')
+        .eq('device_id', deviceId);
 
       if (error) {
         console.error('Error loading items:', error);
