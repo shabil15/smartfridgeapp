@@ -123,7 +123,7 @@ Organize items into:
 - 🥩 Meat
 - 🌾 Grains
 - 🥤 Beverages
-- 📦 Other
+-  Other
 
 ## 📝 Available Scripts
 
